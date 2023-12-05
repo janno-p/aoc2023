@@ -1,15 +1,19 @@
-use std::{io::{self, BufRead}, error, cmp::{max, min}, collections::{HashMap, BTreeMap}};
+use std::{cmp::min, collections::BTreeMap, io::BufRead};
 
-type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
+use aoc::{execute, get_reader, Result};
 
 fn read_seeds(input: &str) -> Vec<u64> {
-    let values = input.split(":").skip(1).take(1).next().unwrap();
-    values.trim().split(" ").map(|v| v.parse::<u64>().unwrap()).collect()
+    let values = input.split(':').skip(1).take(1).next().unwrap();
+    values
+        .trim()
+        .split(' ')
+        .map(|v| v.parse::<u64>().unwrap())
+        .collect()
 }
 
 fn read_map<R>(reader: &mut R) -> Result<Vec<(u64, u64, u64)>>
 where
-    R: BufRead
+    R: BufRead,
 {
     let mut map = vec![];
 
@@ -27,7 +31,10 @@ where
             break;
         }
 
-        let xs: Vec<_> = buffer.split(" ").map(|v| v.trim().parse::<u64>().unwrap()).collect();
+        let xs: Vec<_> = buffer
+            .split(' ')
+            .map(|v| v.trim().parse::<u64>().unwrap())
+            .collect();
         map.push((xs[0], xs[1], xs[2]));
     }
 
@@ -36,7 +43,7 @@ where
 
 fn read_map2<R>(reader: &mut R) -> Result<BTreeMap<u64, (u64, u64)>>
 where
-    R: BufRead
+    R: BufRead,
 {
     let mut map = BTreeMap::<u64, (u64, u64)>::new();
 
@@ -54,17 +61,19 @@ where
             break;
         }
 
-        let xs: Vec<_> = buffer.split(" ").map(|v| v.trim().parse::<u64>().unwrap()).collect();
+        let xs: Vec<_> = buffer
+            .split(' ')
+            .map(|v| v.trim().parse::<u64>().unwrap())
+            .collect();
         map.insert(xs[1], (xs[0], xs[2]));
     }
 
     Ok(map)
 }
 
-fn part1<R>(mut reader: R) -> Result<u64>
-where
-    R: BufRead
-{
+fn part1() -> Result<u64> {
+    let mut reader = get_reader();
+
     let mut buffer = String::new();
     reader.read_line(&mut buffer)?;
 
@@ -74,26 +83,31 @@ where
 
     loop {
         let map = read_map(&mut reader)?;
-        if map.len() == 0 {
+        if map.is_empty() {
             break;
         }
 
-        seeds = seeds.iter().map(|v| {
-            if let Some((destination, source, _)) = map.iter().find(|(_, source, length)| *v >= *source && *v < *source + *length) {
-                *destination + (*v - *source)
-            } else {
-                *v
-            }
-        }).collect();
+        seeds = seeds
+            .iter()
+            .map(|v| {
+                if let Some((destination, source, _)) = map
+                    .iter()
+                    .find(|(_, source, length)| *v >= *source && *v < *source + *length)
+                {
+                    *destination + (*v - *source)
+                } else {
+                    *v
+                }
+            })
+            .collect();
     }
 
     Ok(*seeds.iter().min().unwrap())
 }
 
-fn part2<R>(mut reader: R) -> Result<u64>
-where
-    R: BufRead
-{
+fn part2() -> Result<u64> {
+    let mut reader = get_reader();
+
     let mut buffer = String::new();
     reader.read_line(&mut buffer)?;
 
@@ -104,7 +118,7 @@ where
 
     loop {
         let map = read_map2(&mut reader)?;
-        if map.len() == 0 {
+        if map.is_empty() {
             break;
         }
 
@@ -121,12 +135,12 @@ where
                         0 => {
                             n = o + n - *k;
                             o = *k;
-                        },
+                        }
                         r => {
                             acc.push((*d + (o - *k), r - (o - *k)));
                             n = o + n - (*k + r);
                             o = *k + r;
-                        },
+                        }
                     }
                 } else {
                     acc.push((o, n));
@@ -141,10 +155,5 @@ where
 }
 
 fn main() -> Result<()> {
-    let stdio = io::stdin();
-    let input = stdio.lock();
-
-    println!("RESULT: {}", part2(input)?);
-
-    Ok(())
+    execute(part1, part2)
 }

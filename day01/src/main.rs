@@ -1,6 +1,6 @@
-use std::{io::{self, BufRead}, error};
+use std::io::BufRead;
 
-type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
+use aoc::{execute, get_reader, Result};
 
 fn get_value_part1(bytes: &Vec<u8>) -> u32 {
     let mut a = None;
@@ -10,7 +10,7 @@ fn get_value_part1(bytes: &Vec<u8>) -> u32 {
         if a.is_none() {
             let x = bytes[i];
             if x.is_ascii_digit() {
-                a = Some((x - b'0')  as u32);
+                a = Some((x - b'0') as u32);
             }
         }
         if b.is_none() {
@@ -40,21 +40,21 @@ fn get_spelled_digit(slice: &[u8]) -> Option<u32> {
             } else {
                 None
             }
-        },
+        }
         [b'f', b'o', b'u'] => {
             if slice.len() > 3 && slice[3] == b'r' {
                 Some(4)
             } else {
                 None
             }
-        },
+        }
         [b'f', b'i', b'v'] => {
             if slice.len() > 3 && slice[3] == b'e' {
                 Some(5)
             } else {
                 None
             }
-        },
+        }
         [b's', b'i', b'x'] => Some(6),
         [b's', b'e', b'v'] => {
             if slice.len() > 4 && slice[3..5] == [b'e', b'n'] {
@@ -62,21 +62,21 @@ fn get_spelled_digit(slice: &[u8]) -> Option<u32> {
             } else {
                 None
             }
-        },
+        }
         [b'e', b'i', b'g'] => {
             if slice.len() > 4 && slice[3..5] == [b'h', b't'] {
                 Some(8)
             } else {
                 None
             }
-        },
+        }
         [b'n', b'i', b'n'] => {
             if slice.len() > 3 && slice[3] == b'e' {
                 Some(9)
             } else {
                 None
             }
-        },
+        }
         _ => None,
     }
 }
@@ -94,21 +94,21 @@ fn get_spelled_digit_rev(slice: &[u8]) -> Option<u32> {
             } else {
                 None
             }
-        },
+        }
         [b'o', b'u', b'r'] => {
             if slice.len() > 3 && slice[slice.len() - 4] == b'f' {
                 Some(4)
             } else {
                 None
             }
-        },
+        }
         [b'i', b'v', b'e'] => {
             if slice.len() > 3 && slice[slice.len() - 4] == b'f' {
                 Some(5)
             } else {
                 None
             }
-        },
+        }
         [b's', b'i', b'x'] => Some(6),
         [b'v', b'e', b'n'] => {
             if slice.len() > 4 && slice[(slice.len() - 5)..(slice.len() - 3)] == [b's', b'e'] {
@@ -116,21 +116,21 @@ fn get_spelled_digit_rev(slice: &[u8]) -> Option<u32> {
             } else {
                 None
             }
-        },
+        }
         [b'g', b'h', b't'] => {
             if slice.len() > 4 && slice[(slice.len() - 5)..(slice.len() - 3)] == [b'e', b'i'] {
                 Some(8)
             } else {
                 None
             }
-        },
+        }
         [b'i', b'n', b'e'] => {
             if slice.len() > 3 && slice[slice.len() - 4] == b'n' {
                 Some(9)
             } else {
                 None
             }
-        },
+        }
         _ => None,
     }
 }
@@ -164,12 +164,10 @@ fn get_value_part2(bytes: &Vec<u8>) -> u32 {
     a.unwrap_or_default() * 10 + b.unwrap_or_default()
 }
 
-fn trebuchet<R>(mut reader: R) -> Result<(u32, u32)>
-where
-    R: BufRead
-{
-    let mut sum_part1 = 0;
-    let mut sum_part2 = 0;
+fn part1() -> Result<u32> {
+    let mut reader = get_reader();
+
+    let mut sum = 0;
 
     loop {
         let mut buffer = String::new();
@@ -178,20 +176,30 @@ where
         }
 
         let bytes: Vec<u8> = buffer.bytes().collect();
-        sum_part1 += get_value_part1(&bytes);
-        sum_part2 += get_value_part2(&bytes);
+        sum += get_value_part1(&bytes);
     }
 
-    Ok((sum_part1, sum_part2))
+    Ok(sum)
+}
+
+fn part2() -> Result<u32> {
+    let mut reader = get_reader();
+
+    let mut sum = 0;
+
+    loop {
+        let mut buffer = String::new();
+        if reader.read_line(&mut buffer)? == 0 {
+            break;
+        }
+
+        let bytes: Vec<u8> = buffer.bytes().collect();
+        sum += get_value_part2(&bytes);
+    }
+
+    Ok(sum)
 }
 
 fn main() -> Result<()> {
-    let stdio = io::stdin();
-    let input = stdio.lock();
-
-    let (part1, part2) = trebuchet(input)?;
-    println!("PART1: {}", part1);
-    println!("PART2: {}", part2);
-
-    Ok(())
+    execute(part1, part2)
 }
