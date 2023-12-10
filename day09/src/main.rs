@@ -2,14 +2,6 @@ use std::io::BufRead;
 
 use aoc::{execute, get_reader, Result};
 
-/*
-*5*  10  13  16  21  30  45
- *5*   3   3   5   9  15
- *-2*   0   2   4   6
- *2*   2   2   2
- *0*   0   0
-*/
-
 fn part1() -> Result<i32> {
     let mut reader = get_reader();
     let mut buffer = String::new();
